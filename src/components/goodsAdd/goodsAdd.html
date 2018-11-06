@@ -1,0 +1,132 @@
+<div>
+  <el-row>
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item :to="{ path: '/goods' }">商品列表</el-breadcrumb-item>
+      <el-breadcrumb-item>{{id | fil}}</el-breadcrumb-item>
+    </el-breadcrumb>
+  </el-row>
+  <el-row class="headerInfo">
+    {{id | fil}}信息
+  </el-row>
+  <el-row style="margin: 20px 0">
+    <el-steps :active="activeNum" finish-status="success">
+      <el-step title="步骤 1"></el-step>
+      <el-step title="步骤 2"></el-step>
+      <el-step title="步骤 3"></el-step>
+      <el-step title="步骤 4"></el-step>
+      <el-step title="步骤 5"></el-step>
+    </el-steps>
+  </el-row>
+
+  <!-- tabs -->
+  <el-row>
+    <el-tabs v-model="activeName" tab-position="left" @tab-click="tabClick">
+      <el-tab-pane label="基本信息" name="first">
+        <el-form
+          style="width: 600px"
+          class="demo-ruleForm"
+          :rules="goodsRules"
+          ref="ruleGoods"
+          label-position="right"
+          label-width="100px"
+          :model="goodesInfo">
+          <el-form-item label="商品名称" prop="goods_name">
+            <el-input v-model="goodesInfo.goods_name"></el-input>
+          </el-form-item>
+          <el-form-item label="商品价格" prop="goods_price">
+            <el-input v-model="goodesInfo.goods_price"></el-input>
+          </el-form-item>
+          <el-form-item label="商品重量" prop="goods_weight">
+            <el-input v-model="goodesInfo.goods_weight"></el-input>
+          </el-form-item>
+          <el-form-item label="商品数量" prop="goods_number">
+            <el-input v-model="goodesInfo.goods_number"></el-input>
+          </el-form-item>
+          <el-form-item label="商品分类">
+              <div class="block">
+            <el-cascader
+              class="demonstration"
+              expand-trigger="hover"
+              change-on-select
+              :options="categoryList"
+              :props="categoryObj"
+              v-model="goods_cat"
+              @change="handleChange">
+            </el-cascader>
+            </div>
+          </el-form-item>
+          <el-form-item label="是否促销">
+            <el-radio-group v-model="goodesInfo.is_promote">
+              <el-radio v-model="goodesInfo.is_promote" label="true" border size="medium">是</el-radio>
+              <el-radio v-model="goodesInfo.is_promote" label="false" border size="medium">否</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-form>
+      </el-tab-pane>
+      <el-tab-pane label="商品参数" name="second">
+        <el-row
+          v-for="item in secondMany"
+          :key="item.attr_id"
+          style="margin: 10px 0">
+          <el-col :span="3">
+            <span>{{item.attr_name}}</span>
+          </el-col>
+          <el-col :span="21">
+            <el-tag
+              v-for="(tag, index) in item.attr_vals"
+              :key="index"
+              style="margin: 5px"
+              @close="manyClose(item, index)"
+              closable>
+              {{tag}}
+            </el-tag>
+          </el-col>
+        </el-row>
+      </el-tab-pane>
+      <el-tab-pane label="商品属性" name="third">
+        <el-row
+          v-for="item in thirdOnly"
+          style="margin: 10px 0"
+          :key="item.attr_id">
+          <el-col :span="3" style="text-align: right">
+            {{item.attr_name}}
+          </el-col>
+          <el-col :span="2">&nbsp;</el-col>
+          <el-col :span="19">
+            <el-input v-model="item.attr_vals" placeholder="请输入内容"></el-input>
+          </el-col>
+        </el-row>
+      </el-tab-pane>
+      <el-tab-pane label="商品图片" name="fourth">
+        <el-upload
+          class="upload-demo"
+          action="http://localhost:8888/api/private/v1/upload"
+          :on-preview="handlePreview"
+          :on-remove="handleRemove"
+          :on-success="handleSuccess"
+          :headers="uploadImgHeader"
+          :file-list="fileList"
+          list-type="picture">
+          <el-button size="small" type="primary">点击上传</el-button>
+          <div slot="tip" class="el-upload__tip">只能上传jpg/png文件</div>
+        </el-upload>
+      </el-tab-pane>
+      <el-tab-pane label="商品内容" name="fifth">
+        <quill-editor
+          class="quillEditor"
+          v-model="goodesInfo.goods_introduce"
+          ref="myQuillEditor"
+          :options="editorOption"
+          @blur="onEditorBlur($event)"
+          @focus="onEditorFocus($event)"
+          @change="onEditorChange($event)"
+          @ready="onEditorReady($event)">
+        </quill-editor>
+      </el-tab-pane>
+    </el-tabs>
+  </el-row>
+
+  <el-row>
+    <el-button @click="addGoods">提交</el-button>
+  </el-row>
+</div>

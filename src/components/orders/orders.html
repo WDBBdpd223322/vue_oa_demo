@@ -1,0 +1,128 @@
+<div>
+  <el-row>
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>订单管理</el-breadcrumb-item>
+      <el-breadcrumb-item>订单列表</el-breadcrumb-item>
+    </el-breadcrumb>
+  </el-row>
+  <el-row style="margin: 10px 0">
+    <el-col :span="8">
+      <el-input
+        v-model="searchText"
+        placeholder="请输入内容"
+        class="input-with-select">
+        <el-button @click="queryOrder" slot="append" icon="el-icon-search"></el-button>
+      </el-input>
+    </el-col>
+    <el-col :span="4" :offset="1">
+      <el-button type="success">测试订单</el-button>
+    </el-col>
+  </el-row>
+  <el-row>
+    <el-table
+      :data="orderList"
+      :border="true"
+      style="width: 100%">
+      <el-table-column
+        type="index"
+        label="#"
+        width="40">
+      </el-table-column>
+      <el-table-column
+        prop="order_number"
+        label="订单编号"
+        width="240">
+      </el-table-column>
+      <el-table-column
+        prop="order_price"
+        width="60"
+        label="订单价格">
+      </el-table-column>
+      <el-table-column
+        prop="order_id"
+        width="60"
+        label="下单用户">
+      </el-table-column>
+      <el-table-column
+        width="100"
+        label="是否付款">
+        <template slot-scope="pay">
+          {{pay.row.order_pay | payFilter}}
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="is_send"
+        width="60"
+        label="是否发货">
+      </el-table-column>
+      <el-table-column
+        prop="update_time"
+        width="120"
+        label="下单时间">
+      </el-table-column>
+      <el-table-column
+        min-width="220"
+        label="操作">
+        <template slot-scope="scope">
+          <el-tooltip class="item" effect="dark" content="修改订单状态" placement="left">
+            <el-button size="mini" type="primary" @click="updateOrder(scope.row)" icon="el-icon-edit" circle></el-button>
+          </el-tooltip>
+          <el-tooltip class="item" effect="dark" content="订单地址" placement="right">
+            <el-button size="mini" type="warning" @click="mapDialog = true" icon="el-icon-location-outline" circle></el-button>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+    </el-table>
+  </el-row>
+  <el-row style="margin: 10px 0;">
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="1"
+      :page-sizes="[10, 20, 30, 40]"
+      :page-size="10"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
+  </el-row>
+
+  <!-- 修改订单状态对话框 -->
+  <el-dialog title="修改订单状态" :visible.sync="orderUpdate" width="650px">
+    <select-com></select-com>
+    <el-form :model="orderInfo">
+      <el-form-item label="订单价格">
+        <el-input v-model="orderInfo.order_price"></el-input>
+      </el-form-item>
+      <el-form-item label="订单是否发货">
+        <el-radio-group v-model="orderInfo.is_send">
+          <el-radio label="1">是</el-radio>
+          <el-radio label="0">否</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="订单是否发货">
+        <el-radio-group v-model="orderInfo.order_pay">
+          <el-radio label="0">未支付</el-radio>
+          <el-radio label="1">支付宝</el-radio>
+          <el-radio label="2">微信</el-radio>
+          <el-radio label="3">银行卡</el-radio>
+        </el-radio-group>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="orderUpdate = false">取 消</el-button>
+      <el-button type="primary" @click="updateOrderEvent">确 定</el-button>
+    </div>
+  </el-dialog>
+
+  <!-- 地图对话框 -->
+  <el-dialog
+    title="配送地址"
+    :visible.sync="mapDialog">
+    <bd-map></bd-map>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="mapDialog = false">取 消</el-button>
+      <el-button type="primary" @click="mapDialog = false">确 定</el-button>
+    </span>
+  </el-dialog>
+</div>

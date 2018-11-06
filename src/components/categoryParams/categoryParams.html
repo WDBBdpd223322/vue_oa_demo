@@ -1,0 +1,173 @@
+<div>
+  <el-row>
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>商品管理</el-breadcrumb-item>
+      <el-breadcrumb-item>分类参数</el-breadcrumb-item>
+    </el-breadcrumb>
+  </el-row>
+  <el-row style="margin: 10px 0">
+    <el-cascader
+      expand-trigger="hover"
+      :options="categoryList"
+      :props="categoryObj"
+      @change="handleChange">
+    </el-cascader>
+  </el-row>
+  <el-row>
+    <el-tabs @tab-click="tabsChange" type="border-card">
+      <el-tab-pane label="动态参数">
+        <el-row style="margin-bottom: 5px;">
+          <el-button type="success" @click="addManyAttr">添加参数名称</el-button>
+        </el-row>
+        <el-row>
+          <el-table
+            :data="manyattrList"
+            :border="true"
+            style="width: 100%">
+            <el-table-column type="expand">
+              <template slot-scope="props">
+                <el-tag
+                  :key="index"
+                  v-for="(tag, index) in props.row.attr_vals"
+                  closable
+                  @close="handleClose(tag, props.row)">
+                  {{tag}}
+                </el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible"
+                  v-model="currentAttr"
+                  ref="saveTagInput"
+                  size="small"
+                  style="width: 100px"
+                  @keyup.enter.native="handleInputConfirm(props.row)"
+                  @blur="handleInputConfirm(props.row)"></el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="#"
+              type="index"
+              width="40">
+            </el-table-column>
+            <el-table-column
+              label="商品参数名称"
+              prop="attr_name"
+              width="130">
+            </el-table-column>
+            <el-table-column
+              label="操作"
+              min-width="220">
+              <template slot-scope="scope">
+                <el-tooltip class="item" effect="dark" content="编辑" placement="left">
+                  <el-button type="primary" @click="updateManyAttr(scope.row)" icon="el-icon-edit" circle></el-button>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="删除" placement="right">
+                  <el-button type="danger" @click="delManyAttr(scope.row.attr_id)" icon="el-icon-delete" circle></el-button>
+                </el-tooltip>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-row>
+      </el-tab-pane>
+      <el-tab-pane label="静态参数">
+        <el-row style="margin-bottom: 5px;">
+          <el-button type="success" @click="addOnlyattr">添加参数</el-button>
+        </el-row>
+        <el-row>
+          <el-table
+            :data="onlyattrList"
+            :border="true"
+            style="width: 100%">
+            <el-table-column
+              label="#"
+              type="index"
+              width="40">
+            </el-table-column>
+            <el-table-column
+              prop="attr_name"
+              label="属性名称"
+              width="240">
+            </el-table-column>
+            <el-table-column
+              prop="attr_vals"
+              label="属性值"
+              width="240">
+            </el-table-column>
+            <el-table-column
+              label="操作"
+              min-width="180">
+              <template slot-scope="scope">
+                <el-tooltip class="item" effect="dark" content="编辑" placement="left">
+                  <el-button type="primary" @click="updateOnlyAttr(scope.row)" icon="el-icon-edit" circle></el-button>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="删除" placement="right">
+                  <el-button type="danger" @click="delOnlyAttr(scope.row.attr_id)" icon="el-icon-delete" circle></el-button>
+                </el-tooltip>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-row>
+      </el-tab-pane>
+    </el-tabs>
+  </el-row>
+
+  <!-- 添加动态参数名称的对话框 -->
+  <el-dialog @close="close" title="添加动态参数名称" :visible.sync="manyAttrAdd">
+    <el-form class="demo-ruleForm" :rules="manyAdd" ref="mAdd" :model="manyAttrObj">
+      <el-form-item label="参数名称" prop="attr_name">
+        <el-input v-model="manyAttrObj.attr_name" auto-complete="off"></el-input>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="manyAttrAdd = false">取 消</el-button>
+      <el-button type="primary" @click="addManyAttrEvent('mAdd')">确 定</el-button>
+    </div>
+  </el-dialog>
+
+  <!-- 编辑动态参数名称的对话框 -->
+  <el-dialog @close="close" title="编辑动态参数名称" :visible.sync="manyAttrUpdate">
+    <el-form class="demo-ruleForm" :rules="manyAdd" ref="mAdd" :model="manyAttrObj">
+      <el-form-item label="参数名称" prop="attr_name">
+        <el-input v-model="manyAttrObj.attr_name" auto-complete="off"></el-input>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="manyAttrUpdate = false">取 消</el-button>
+      <el-button type="primary" @click="updateManyAttrEvent('mAdd')">确 定</el-button>
+    </div>
+  </el-dialog>
+
+  <!-- 添加静态参数名称的对话框 -->
+  <el-dialog @close="close" title="添加静态参数" :visible.sync="onlyAttrAdd">
+    <el-form class="demo-ruleForm" :rules="manyAdd" ref="mAdd" :model="manyAttrObj">
+      <el-form-item label="属性名称" prop="attr_name">
+        <el-input v-model="manyAttrObj.attr_name" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="属性值" prop="attr_vals">
+        <el-input v-model="manyAttrObj.attr_vals" auto-complete="off"></el-input>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="onlyAttrAdd = false">取 消</el-button>
+      <el-button type="primary" @click="addOnlyattrEvent('mAdd')">确 定</el-button>
+    </div>
+  </el-dialog>
+
+  <!-- 编辑静态参数名称的对话框 -->
+  <el-dialog @close="close" title="添加静态参数" :visible.sync="onlyAttrUpdate">
+    <el-form class="demo-ruleForm" :rules="manyAdd" ref="mAdd" :model="manyAttrObj">
+      <el-form-item label="属性名称" prop="attr_name">
+        <el-input v-model="manyAttrObj.attr_name" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="属性值" prop="attr_vals">
+        <el-input v-model="manyAttrObj.attr_vals" auto-complete="off"></el-input>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="onlyAttrUpdate = false">取 消</el-button>
+      <el-button type="primary" @click="updateOnlyattrEvent('mAdd')">确 定</el-button>
+    </div>
+  </el-dialog>
+</div>

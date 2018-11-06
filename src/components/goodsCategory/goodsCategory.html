@@ -1,0 +1,103 @@
+<div>
+  <el-row>
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>商品管理</el-breadcrumb-item>
+      <el-breadcrumb-item>商品分类</el-breadcrumb-item>
+    </el-breadcrumb>
+  </el-row>
+  <el-row style="margin: 10px 0">
+    <el-button @click="addCategory" type="success">添加分类</el-button>
+  </el-row>
+  <el-row>
+    <el-table v-loading="loading" :data="categoryList" border>
+      <el-table-tree-column
+        fixed
+        :expand-all="!!!1"
+        file-icon="icon icon-file"
+        folder-icon="icon icon-folder"
+        prop="cat_name"
+        treeKey="cat_id"
+        parentKey="cat_pid"
+        levelKey="cat_level"
+        label="分类名称"
+        child-key="children"
+        width="320"
+        :indent-size="40">
+      </el-table-tree-column>
+      <el-table-column label="是否有效" width="180">
+        <template slot-scope="scope">{{ scope.row.cat_deleted }}</template>
+      </el-table-column>
+      <el-table-column label="排序" width="180" prop="cat_level">
+      </el-table-column>
+      <el-table-column label="操作" min-width="180">
+        <template slot-scope="scope">
+          <el-button @click="updateCate(scope.row)" size="mini" type="success" plain>编辑</el-button>
+          <el-button @click="delCate(scope.row.cat_id)" size="mini" type="danger" plain>删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </el-row>
+  <el-row>
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="1"
+      :page-sizes="[10, 20, 30, 40]"
+      :page-size="100"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
+  </el-row>
+
+  <!-- 添加分类对话框 -->
+  <el-dialog @close="close" title="添加分类" :visible.sync="categoryAdd">
+    <el-form :model="categoryInfo">
+      <el-form-item label="分类名称">
+        <el-input v-model="categoryInfo.cat_name" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="分类名称">
+        <el-cascader
+          expand-trigger="hover"
+          :options="category"
+          :props="categoryObj"
+          change-on-select
+          clearable
+          ref="cate"
+          placeholder="请选择分类，默认为顶级分类"
+          @change="handleChange">
+        </el-cascader>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="categoryAdd = false">取 消</el-button>
+      <el-button type="primary" @click="addCategoryEvent">确 定</el-button>
+    </div>
+  </el-dialog>
+
+  <!-- 编辑分类对话框 -->
+  <el-dialog @close="close" title="添加分类" :visible.sync="categoryUpdate">
+    <el-form :model="categoryInfo">
+      <el-form-item label="分类名称">
+        <el-input v-model="categoryInfo.cat_name" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="分类名称">
+        <el-cascader
+          expand-trigger="hover"
+          :options="category"
+          :props="categoryObj"
+          change-on-select
+          clearable
+          v-model="defaultCate"
+          placeholder="请选择分类，默认为顶级分类"
+          ref="cate"
+          @change="handleChange">
+        </el-cascader>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="categoryUpdate = false">取 消</el-button>
+      <el-button type="primary" @click="categoryUpdateEvent">确 定</el-button>
+    </div>
+  </el-dialog>
+</div>

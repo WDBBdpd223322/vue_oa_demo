@@ -1,0 +1,26 @@
+<div>
+  <el-row>
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>数据统计</el-breadcrumb-item>
+      <el-breadcrumb-item>数据报表</el-breadcrumb-item>
+    </el-breadcrumb>
+  </el-row>
+  <el-row class="reportsHeader">
+    <span>数据统计</span>
+  </el-row>
+  <el-row class="charts">
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="用户来源" name="first">
+        <div id="chartOne" class="chart"></div>
+      </el-tab-pane>
+      <el-tab-pane label="数据统计2" name="second">
+        <div id="chartTwo" class="chart"></div>
+      </el-tab-pane>
+      <el-tab-pane label="数据统计3" name="third">
+        <div id="chartThree" class="chart"></div>
+      </el-tab-pane>
+      <el-tab-pane label="数据统计4" name="fourth">数据统计4</el-tab-pane>
+    </el-tabs>
+  </el-row>
+</div>

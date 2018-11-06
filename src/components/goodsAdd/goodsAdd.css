@@ -1,0 +1,11 @@
+.headerInfo {
+  height: 40px;
+  line-height: 40px;
+  padding-left: 15px;
+}
+
+.quillEditor {
+  height: 400px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}

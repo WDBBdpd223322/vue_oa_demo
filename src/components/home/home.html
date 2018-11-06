@@ -1,0 +1,51 @@
+<el-container class="container">
+  <el-header class="header">
+    <el-row>
+      <el-col :span="6">
+        <div class="grid-content bg-purple">
+          <router-link to="/">
+              <img src="./logo.png" alt="">
+          </router-link>
+        </div>
+      </el-col>
+      <el-col :offset="16" :span="2" >
+        <div class="grid-content bg-purple logout">
+          <a
+            href="#"
+            @click.prevent="logout">退出</a>
+        </div>
+      </el-col>
+    </el-row>
+  </el-header>
+  <el-container class="container">
+    <el-aside class="aside" style="width: 220px">
+      <el-menu
+        default-active="2"
+        class="el-menu-vertical-demo"
+        :unique-opened="true"
+        :router=true>
+        <el-submenu
+          v-for="level1 in menuList"
+          :key="level1.id"
+          :index="level1.path">
+          <template slot="title">
+            <i class="el-icon-location"></i>
+            <span>{{ level1.authName }}</span>
+          </template>
+          <el-menu-item-group>
+            <el-menu-item
+              v-for="level2 in level1.children"
+              :key="level2.id"
+              :index="level2.path">
+              <i class="el-icon-menu"></i>
+              <span>{{ level2.authName }}</span>
+            </el-menu-item>
+          </el-menu-item-group>
+        </el-submenu>
+      </el-menu>
+    </el-aside>
+    <el-main class="main">
+      <router-view></router-view>
+    </el-main>
+  </el-container>
+</el-container>

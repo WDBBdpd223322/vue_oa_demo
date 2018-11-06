@@ -1,0 +1,173 @@
+<div>
+  <!-- 面包屑 -->
+  <el-row>
+    <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
+      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
+    </el-breadcrumb>
+  </el-row>
+
+  <!-- 搜索框 -->
+  <el-row style="margin: 10px 0">
+    <el-col :span="8">
+      <el-input
+        v-model="searchText"
+        @keydown.enter.native="queryUser"
+        placeholder="请输入内容"
+        class="input-with-select">
+        <el-button  slot="append" @click="queryUser" icon="el-icon-search"></el-button>
+      </el-input>
+    </el-col>
+    <el-col :span="4" :offset="1">
+      <el-button
+      @click.prevent="userAdd = true"
+      type="success">添加用户</el-button>
+    </el-col>
+  </el-row>
+
+  <!-- 表格内容 -->
+  <el-row>
+    <el-table
+      :data="userList"
+      :border="true"
+      style="width: 100%">
+      <el-table-column
+        label="#"
+        type="index"
+        width="40">
+      </el-table-column>
+      <el-table-column
+        prop="username"
+        label="姓名"
+        width="100">
+      </el-table-column>
+      <el-table-column
+        prop="role_name"
+        label="角色名称"
+        width="120">
+      </el-table-column>
+      <el-table-column
+        prop="email"
+        label="邮箱"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="mobile"
+        label="电话"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        label="状态"
+        width="60">
+        <template slot-scope="type">
+          <el-switch
+            v-model="type.row.mg_state"
+            @change="updateState(type.row)"
+            active-color="#13ce66"
+            inactive-color="#ff4949">
+          </el-switch>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="操作"
+        min-width="220">
+        <template slot-scope="scope">
+          <el-tooltip class="item" effect="dark" content="编辑" placement="left">
+            <el-button size="mini" type="primary" @click="update(scope.row)" icon="el-icon-edit" circle></el-button>
+          </el-tooltip>
+          <el-tooltip class="item" effect="dark" content="删除" placement="top">
+            <el-button size="mini" type="danger" @click="userDel(scope.row.id)" icon="el-icon-delete" circle></el-button>
+          </el-tooltip>
+          <el-tooltip class="item" effect="dark" content="分配角色" placement="right">
+            <el-button size="mini" type="success" @click="updateRole(scope.row)" icon="el-icon-check" circle></el-button>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+    </el-table>
+  </el-row>
+
+  <!-- 分页 -->
+  <el-row>
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="1"
+      :page-sizes="[2, 4, 6, 8]"
+      :page-size="10"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
+  </el-row>
+
+  <!-- 添加用户的对话框 -->
+  <el-dialog @close="close" title="添加用户" :visible.sync="userAdd">
+    <el-form
+      class="dome-ruleForm"
+      :model="userInfo"
+      :rules="userAddRule"
+      ref="addUser">
+      <el-form-item label="用户名" prop="username">
+        <el-input v-model="userInfo.username" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input v-model="userInfo.password" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="邮箱" >
+        <el-input v-model="userInfo.email" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="电话" >
+          <el-input v-model="userInfo.mobile" auto-complete="off"></el-input>
+        </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="close">取 消</el-button>
+      <el-button type="primary" @click="userAddEvent('addUser')">确 定</el-button>
+    </div>
+  </el-dialog>
+
+  <!-- 编辑用户的对话框 -->
+  <el-dialog @close="close" title="编辑用户" :visible.sync="userUpdate">
+    <el-form
+      class="dome-ruleForm"
+      :model="userInfo"
+      :rules="userAddRule"
+      ref="addUser">
+      <el-form-item label="用户名" prop="username">
+        <el-input :disabled="true" v-model="userInfo.username" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="邮箱" >
+        <el-input v-model="userInfo.email" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="电话" >
+          <el-input v-model="userInfo.mobile" auto-complete="off"></el-input>
+        </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="close">取 消</el-button>
+      <el-button type="primary" @click="userUpdataEvent('addUser')">确 定</el-button>
+    </div>
+  </el-dialog>
+
+  <!-- 分配权限的对话框 -->
+  <el-dialog title="分配角色" :visible.sync="roleUpdate">
+    <el-form :model="roleInfo">
+      <el-form-item label="用户名称">
+        <el-input v-model="roleInfo.username" :disabled="true" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="活动区域">
+        <el-select v-model="roleInfo.region" @change="changeRole" placeholder="请选择活动区域">
+          <el-option
+            :label="item.roleName"
+            :value="item.id"
+            v-for="item in roleList"
+            :key="item.id"></el-option>
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="roleUpdate = false">取 消</el-button>
+      <el-button type="primary" @click="roleUpdateEvent">确 定</el-button>
+    </div>
+  </el-dialog>
+</div>

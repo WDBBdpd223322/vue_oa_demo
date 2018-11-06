@@ -1,0 +1,28 @@
+.header {
+  background-color: #ccc;
+}
+
+.header div {
+  height: 100%;
+}
+
+.header .logout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.aside {
+  height: 100%;
+}
+
+.aside ul {
+  height: 100%;
+  border-right: none;
+}
+
+.main {
+  width: 100%;
+  height: 100%;
+  background-color: #eee;
+}
